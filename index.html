@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>渣男回复生成器</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b1055, #7597de);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #ff4b2b;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #ff6b3d;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">渣男回复生成器</h1>
+
+        <div class="card">
+            <h2>对话:</h2>
+            <p id="response">开始对话吧！</p>
+        </div>
+
+        <input type="text" id="userInput" placeholder="输入你想说的话..." />
+        <button id="sendRequest" class="btn">发送</button>
+    </div>
+
+    <script>
+        let conversation = [
+            { role: "system", content: "你现在扮演一个渣男，会撩妹、说话扣人心弦、回复简洁就一句话" }
+        ];
+
+        document.getElementById('sendRequest').addEventListener('click', async () => {
+            const apiKey = 'sk-j29yjWFosoZKE247028dD1F7961c49F59b78E6767b889d58'; // 替换为你的API密钥
+            const url = 'https://xiaoai.plus/v1/chat/completions';
+
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === "") return;
+
+            conversation.push({ role: "user", content: userInput });
+
+            const data = {
+                model: "gpt-4o-mini",
+                messages: conversation
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! 状态: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const reply = result.choices[0].message.content;
+                document.getElementById('response').textContent = reply;
+
+                conversation.push({ role: "assistant", content: reply });
+                document.getElementById('userInput').value = ""; // 清空输入框
+            } catch (error) {
+                console.error('请求失败:', error);
+                document.getElementById('response').textContent = `请求失败: ${error}`;
+            }
+        });
+    </script>
+</body>
+</html>
